@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { UserDTO } from './../dto/user.dto';
 import { User, UserDocument } from './../schemas/user.schema';
@@ -25,6 +25,16 @@ export class UserService {
       });
 
       return newUser;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getAUser(email: string): Promise<User> {
+    try {
+      const user = this.userModel.findOne({ email: email });
+
+      return user;
     } catch (error) {
       throw new Error(error);
     }
