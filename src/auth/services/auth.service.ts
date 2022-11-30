@@ -1,11 +1,10 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from './../../user/services/user.service';
 import { JwtPayload } from './../dto/auth.dto';
-import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -29,23 +28,21 @@ export class AuthService {
 
   async verifyUser(email: string, password: string): Promise<string> {
     try {
-      const user = await this.userService.getAUser(email);
-      if (user) {
-        if (bcrypt.compare(password, user?.password)) {
-          const jwtToken = this.signToken({
-            email: user.email,
-            role: user.role,
-          });
+      const user = await this.userService.getAUser({email: email});
+      if (user && bcrypt.compare(password, user?.password)) {
+        const jwtToken = this.signToken({
+          email: user.email,
+          role: user.role,
+        });
 
-          return jwtToken;
-        } else {
-          throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-        }
+        return jwtToken;
       } else {
-        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        throw new UnauthorizedException({
+          message: 'Invalid email address or password!',
+        });
       }
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   }
 }

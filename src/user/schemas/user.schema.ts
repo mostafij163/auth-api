@@ -12,10 +12,13 @@ export class User {
   email: string;
 
   @Prop()
-  password: string;
+  password?: string;
 
   @Prop({ default: 'user' })
   role: string;
+
+  @Prop()
+  clientId?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
